@@ -34,7 +34,7 @@ def display_definitions(menu, title):
 	echo.stdout.close()
 
 	if result == "":
-			exit(0)
+		exit(0)
 
 	proc = Popen("xclip -sel clip -f", stdout=PIPE, stdin=PIPE, shell=True, text=True)
 	proc.communicate(result)
