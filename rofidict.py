@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 from subprocess import run, Popen, PIPE
-import json, os, requests
-
-LANG = "en-gb"
+import json, os, requests, sys
 
 def do_query(query):
-	dictionary_url = f"https://od-api.oxforddictionaries.com/api/v2/entries/{LANG}/{query}"
+	dictionary_url = f"https://od-api.oxforddictionaries.com/api/v2/entries/{lang}/{query}"
 	response = requests.get(dictionary_url, headers={"app_id": creds["app_id"], "app_key": creds["app_key"]}).json()
 	if "results" in response:
 		return response["results"]
@@ -40,7 +38,7 @@ def display_definitions(menu, title):
 	proc.communicate(result)
 
 def choose_word():
-	result = run(rofi_command + ["-p", "define:"], capture_output=True, text=True)
+	result = run(rofi_command + ["-p", f"Define ({lang})"], capture_output=True, text=True)
 	query = result.stdout.strip().lower()
 	
 	if query == "":
@@ -57,8 +55,16 @@ def get_creds():
 		creds = json.load(f)
 
 def main():
+	global lang
 	global rofi_command
+
+	if len(sys.argv) != 2:
+		print("Provide a language code like en (english) or es (spanish)")
+		exit(0)
+
+	lang = sys.argv[1]
 	rofi_command = ["rofi", "-dmenu", "-lines", "10", "-no-fixed-num-lines", "-i"]
+
 	get_creds()
 	choose_word()
 

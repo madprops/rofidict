@@ -8,3 +8,15 @@ You will need to create a JSON file named `creds.json` in the cloned repo. This 
   "app_id": "APP ID GOES HERE"
 }
 ```
+
+It's necessary to provide the language code as an argument:
+
+`python /path/to/rofidict.py en` 
+
+(For english definitions)
+
+`python /path/to/rofidict.py es` 
+
+(For spanish definitions)
+
+[Check available languages here](https://developer.oxforddictionaries.com/documentation/languages)
