@@ -32,10 +32,10 @@ def display_definitions(menu, title):
 	echo.stdout.close()
 
 	if result == "":
-		exit(0)
-
-	proc = Popen("xclip -sel clip -f", stdout=PIPE, stdin=PIPE, shell=True, text=True)
-	proc.communicate(result)
+		choose_word()
+	else:
+		proc = Popen("xclip -sel clip -f", stdout=PIPE, stdin=PIPE, shell=True, text=True)
+		proc.communicate(result)
 
 def choose_word():
 	result = run(rofi_command + ["-p", f"Define ({lang})"], capture_output=True, text=True)
