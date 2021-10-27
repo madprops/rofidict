@@ -2,14 +2,13 @@
 from subprocess import Popen, PIPE
 import json, os, requests, sys
 
+# Query Oxford Dictionaries
 def do_query(query):
 	dictionary_url = f"https://od-api.oxforddictionaries.com/api/v2/entries/{lang}/{query}"
 	response = requests.get(dictionary_url, headers={"app_id": creds["app_id"], "app_key": creds["app_key"]}).json()
-	if "results" in response:
-		return response["results"]
-	else:
-		exit(0)
-    
+	return response
+
+# Extract definitions from result
 def get_all_definitions(results):
 	definitions = []
 
@@ -28,6 +27,7 @@ def get_all_definitions(results):
 
 	return list(set(definitions))
 
+# Display definitions in Rofi
 def display_definitions(menu, title):
 	proc = Popen(f'rofi -dmenu -i -p "{title}"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
 	result = proc.communicate("\n".join(menu))[0].strip()
@@ -38,15 +38,25 @@ def display_definitions(menu, title):
 		proc = Popen('xclip -sel clip -f', stdout=PIPE, stdin=PIPE, shell=True, text=True)
 		proc.communicate(result)
 
+# Ask for the word to query
 def ask_query():
 	proc = Popen(f'rofi -dmenu -i -p "Define ({lang})"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
 	query = proc.communicate("")[0].strip().lower()
 	
 	if query == "":
 		exit(0)
+	
+	if len(query.split(" ")) > 1:
+		ask_query()
+		return
 
-	results = do_query(query)
-	definitions = get_all_definitions(results)
+	response = do_query(query)
+
+	if "results" not in response:
+		ask_query()
+		return
+
+	definitions = get_all_definitions(response["results"])
 	display_definitions(definitions, f"{query} ({lang})")		
 
 def get_creds():
