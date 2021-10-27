@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from subprocess import Popen, PIPE
-import json, os, requests, sys
+from pathlib import Path
+import json, requests, sys
 
 # Query Oxford Dictionaries
 def do_query(word):
@@ -62,8 +63,9 @@ def ask_word():
 # Read the api credentials file
 def get_creds():
 	global creds
-	filepath = os.path.dirname(os.path.realpath(__file__))
-	with open(f"{filepath}/creds.json", "r") as f:
+	thispath = Path(__file__).parent.resolve()
+	filepath = Path(thispath) / Path("creds.json")
+	with open(filepath, "r") as f:
 		creds = json.load(f)
 
 # Main function
