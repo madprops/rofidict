@@ -22,8 +22,11 @@ def get_all_definitions(results):
 							if "definitions" in sense:
 								for definition in sense["definitions"]:
 									definitions.append(definition)
+							elif "shortDefinitions" in sense:
+								for definition in sense["shortDefinitions"]:
+									definitions.append(definition)
 
-	return definitions
+	return list(set(definitions))
 
 def display_definitions(menu, title):
 	proc = Popen(f'rofi -dmenu -i -p "{title}"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
