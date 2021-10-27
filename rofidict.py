@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-from subprocess import run, Popen, PIPE
+from subprocess import Popen, PIPE
 import json, os, requests, sys
 
 def do_query(query):
@@ -27,26 +26,25 @@ def get_all_definitions(results):
 	return definitions
 
 def display_definitions(menu, title):
-	echo = Popen(["echo", "\n".join(menu)], stdout=PIPE)
-	result = run(rofi_command + ["-no-custom", "-p", title], stdin=echo.stdout, capture_output=True, text=True).stdout.strip()
-	echo.stdout.close()
+	proc = Popen(f'rofi -dmenu -i -p "{title}"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
+	result = proc.communicate("\n".join(menu))[0].strip()
 
 	if result == "":
-		choose_word()
+		ask_query()
 	else:
-		proc = Popen("xclip -sel clip -f", stdout=PIPE, stdin=PIPE, shell=True, text=True)
+		proc = Popen('xclip -sel clip -f', stdout=PIPE, stdin=PIPE, shell=True, text=True)
 		proc.communicate(result)
 
-def choose_word():
-	result = run(rofi_command + ["-p", f"Define ({lang})"], capture_output=True, text=True)
-	query = result.stdout.strip().lower()
+def ask_query():
+	proc = Popen(f'rofi -dmenu -i -p "Define ({lang})"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
+	query = proc.communicate("")[0].strip().lower()
 	
 	if query == "":
 		exit(0)
 
 	results = do_query(query)
 	definitions = get_all_definitions(results)
-	display_definitions(definitions, query)		
+	display_definitions(definitions, f"{query} ({lang})")		
 
 def get_creds():
 	global creds
@@ -56,17 +54,15 @@ def get_creds():
 
 def main():
 	global lang
-	global rofi_command
 
 	if len(sys.argv) != 2:
 		print("Provide a language code like en (english) or es (spanish)")
 		exit(0)
 
 	lang = sys.argv[1]
-	rofi_command = ["rofi", "-dmenu", "-lines", "10", "-no-fixed-num-lines", "-i"]
 
 	get_creds()
-	choose_word()
+	ask_query()
 
 if __name__ == "__main__":
 	main()
