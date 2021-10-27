@@ -3,10 +3,10 @@ from subprocess import Popen, PIPE
 import json, os, requests, sys
 
 # Query Oxford Dictionaries
-def do_query(query):
-	dictionary_url = f"https://od-api.oxforddictionaries.com/api/v2/entries/{lang}/{query}"
-	response = requests.get(dictionary_url, headers={"app_id": creds["app_id"], "app_key": creds["app_key"]}).json()
-	return response
+def do_query(word):
+	dictionary_url = f"https://od-api.oxforddictionaries.com/api/v2/entries/{lang}/{word}"
+	headers = {"app_id": creds["app_id"], "app_key": creds["app_key"]}
+	return requests.get(dictionary_url, headers=headers).json()
 
 # Extract definitions from result
 def get_all_definitions(results):
@@ -33,38 +33,40 @@ def display_definitions(menu, title):
 	result = proc.communicate("\n".join(menu))[0].strip()
 
 	if result == "":
-		ask_query()
+		ask_word()
 	else:
 		proc = Popen('xclip -sel clip -f', stdout=PIPE, stdin=PIPE, shell=True, text=True)
 		proc.communicate(result)
 
 # Ask for the word to query
-def ask_query():
+def ask_word():
 	proc = Popen(f'rofi -dmenu -i -p "Define ({lang})"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
-	query = proc.communicate("")[0].strip().lower()
+	word = proc.communicate("")[0].strip().lower()
 	
-	if query == "":
+	if word == "":
 		exit(0)
 	
-	if len(query.split(" ")) > 1:
-		ask_query()
+	if len(word.split(" ")) > 1:
+		ask_word()
 		return
 
-	response = do_query(query)
+	response = do_query(word)
 
 	if "results" not in response:
-		ask_query()
+		ask_word()
 		return
 
 	definitions = get_all_definitions(response["results"])
-	display_definitions(definitions, f"{query} ({lang})")		
+	display_definitions(definitions, f"{word} ({lang})")		
 
+# Read the api credentials file
 def get_creds():
 	global creds
 	filepath = os.path.dirname(os.path.realpath(__file__))
 	with open(f"{filepath}/creds.json", "r") as f:
 		creds = json.load(f)
 
+# Main function
 def main():
 	global lang
 
@@ -75,7 +77,7 @@ def main():
 	lang = sys.argv[1]
 
 	get_creds()
-	ask_query()
+	ask_word()
 
 if __name__ == "__main__":
 	main()
