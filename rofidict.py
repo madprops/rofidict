@@ -39,9 +39,13 @@ def display_definitions(menu, title):
 	if result == "":
 		ask_word()
 	else:
-		proc = Popen('xclip -sel clip -f', stdout=PIPE, stdin=PIPE, shell=True, text=True)
-		proc.communicate(result)
+		clipboard_copy(result)
 
+# Send a string to the clipboard
+def clipboard_copy(text):
+	proc = Popen('xclip -sel clip -f', stdout=PIPE, stdin=PIPE, shell=True, text=True)
+	proc.communicate(text)
+	
 # Ask for the word to query
 def ask_word():
 	proc = Popen(f'rofi -dmenu -i -p "Define ({lang})"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
