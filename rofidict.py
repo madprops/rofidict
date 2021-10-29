@@ -25,6 +25,9 @@ def get_all_definitions(results):
 							elif "shortDefinitions" in sense:
 								for definition in sense["shortDefinitions"]:
 									definitions.append(definition)
+							elif "crossReferenceMarkers" in sense:
+								for definition in sense["crossReferenceMarkers"]:
+									definitions.append(definition)
 
 	return list(set(definitions))
 
