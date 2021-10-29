@@ -34,12 +34,12 @@ def get_all_definitions(results):
 # Display definitions in Rofi
 def display_definitions(menu, title):
 	proc = Popen(f'rofi -dmenu -i -p "{title}"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
-	result = proc.communicate("\n".join(menu))[0].strip()
+	ans = proc.communicate("\n".join(menu))[0].strip()
 
-	if result == "":
+	if ans == "":
 		ask_word()
 	else:
-		clipboard_copy(result)
+		clipboard_copy(ans)
 
 # Send a string to the clipboard
 def clipboard_copy(text):
@@ -49,23 +49,23 @@ def clipboard_copy(text):
 # Ask for the word to query
 def ask_word():
 	proc = Popen(f'rofi -dmenu -i -p "Define ({lang})"', stdout=PIPE, stdin=PIPE, shell=True, text=True)
-	word = proc.communicate("")[0].strip().lower()
+	ans = proc.communicate("")[0].strip().lower()
 	
-	if word == "":
+	if ans == "":
 		exit(0)
 	
-	if len(word.split(" ")) > 1:
+	if len(ans.split(" ")) > 1:
 		ask_word()
 		return
 
-	response = do_query(word)
+	response = do_query(ans)
 
 	if "results" not in response:
 		ask_word()
 		return
 
 	definitions = get_all_definitions(response["results"])
-	display_definitions(definitions, f"{word} ({lang})")		
+	display_definitions(definitions, f"{ans} ({lang})")		
 
 # Read the api credentials file
 def get_creds():
